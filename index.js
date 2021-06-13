@@ -12,8 +12,8 @@ app.get('/', (req, res) => {
 io.on('connection', (socket) => {
     socket.on('join game', name => {
       
-    io.emit('join game', gPlayerNameList);
-  });
+        io.emit('join game', name);
+    });
 });
 
 io.on('connection', (socket) => {
