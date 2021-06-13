@@ -3,8 +3,17 @@ const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const port = process.env.PORT || 3000;
 
+var gPlayerNameList = ["", "", "", ""];
+
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
+});
+
+io.on('connection', (socket) => {
+    socket.on('join game', name => {
+      
+    io.emit('join game', gPlayerNameList);
+  });
 });
 
 io.on('connection', (socket) => {

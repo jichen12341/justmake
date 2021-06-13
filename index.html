@@ -16,13 +16,30 @@
     </style>
   </head>
   <body>
-    <input type="text" name="name" id="name" placeholder="暱稱" /> <button>加入遊戲</button>
+    <input type="text" name="name" id="name" value="ttt" placeholder="暱稱" /> <button onclick="join_game()">加入遊戲</button>
     <ul id="messages"></ul>
     <form id="form" action="">
       <input id="input" autocomplete="off" /><button>Send</button>
     </form>
     <script src="/socket.io/socket.io.js"></script>
 
+    <script>
+        function join_game()
+        {
+            var socket = io();
+            var name = document.getElementById('name');
+            if (name.value)
+            {
+                socket.emit('join game', name.value);
+            }
+            
+            socket.on('join game', function(playerNameList) 
+            {
+                messages.value = playerNameList;
+            });
+        }
+    </script>
+    
     <script>
       var socket = io();
 
