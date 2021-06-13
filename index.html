@@ -24,23 +24,25 @@
     <script src="/socket.io/socket.io.js"></script>
 
     <script>
+        var socket = io();
+        
         function join_game()
-        {
-            var socket = io();
+        {           
             var name = document.getElementById('name');
             if (name.value)
             {
                 socket.emit('join game', name.value);
-            }
-            
-            socket.on('join game', function(playerNameList) 
-            {
-                messages.value = playerNameList;
-            });
+            }            
         }
+        
+        socket.on('join game', function(playerNameList) 
+        {
+            messages.value = playerNameList;
+        });        
     </script>
     
     <script>
+    /*
       var socket = io();
 
       var messages = document.getElementById('messages');
@@ -61,6 +63,7 @@
         messages.appendChild(item);
         window.scrollTo(0, document.body.scrollHeight);
       });
+      */
     </script>
   </body>
 </html>
