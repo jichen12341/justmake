@@ -1,44 +1,173 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <title>Just Make</title>
     <style>
-      body { margin: 0; padding-bottom: 3rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { margin: 0; padding-bottom: 3rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
 
-      #form { background: rgba(0, 0, 0, 0.15); padding: 0.25rem; position: fixed; bottom: 0; left: 0; right: 0; display: flex; height: 3rem; box-sizing: border-box; backdrop-filter: blur(10px); }
-      #input { border: none; padding: 0 1rem; flex-grow: 1; border-radius: 2rem; margin: 0.25rem; }
-      #input:focus { outline: none; }
-      #form > button { background: #333; border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 3px; outline: none; color: #fff; }
+        #form { background: rgba(0, 0, 0, 0.15); padding: 0.25rem; position: fixed; bottom: 0; left: 0; right: 0; display: flex; height: 3rem; box-sizing: border-box; backdrop-filter: blur(10px); }
+        #input { border: 0.05rem; padding: 0 1rem; flex-grow: 1; border-radius: 2rem; margin: 0.25rem; }
+        #input:focus { outline: none; }
+        #form > button { background: #333; border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 3px; outline: none; color: #fff; }
 
-      #messages { list-style-type: none; margin: 0; padding: 0; }
-      #messages > li { padding: 0.5rem 1rem; }
-      #messages > li:nth-child(odd) { background: #efefef; }
+        #messages { list-style-type: none; margin: 0; padding: 0; }
+        #messages > li { padding: 0.5rem 1rem; }
+        #messages > li:nth-child(odd) { background: #efefef; }
+
+        #msgDesk { list-style-type: none; margin: 0; padding: 0; }
+        
+        table.fixed { table-layout:fixed; }
+        table.fixed td { overflow: hidden; }
     </style>
-  </head>
-  <body>
-    <input type="text" name="name" id="name" value="ttt" placeholder="暱稱" /> <button onclick="join_game()">加入遊戲</button>
-    <ul id="messages"></ul>
-    <form id="form" action="">
-      <input id="input" autocomplete="off" /><button>Send</button>
-    </form>
     <script src="/socket.io/socket.io.js"></script>
+    <script src="client_game.js"></script>
+    <script src="client_layout.js"></script>    
+</head>
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 
+<body>    
+    <ul id="panelLogin">
+        <input type="text" id="name" value="ttt" placeholder="暱稱" /> 
+        <button onclick="join_game()">加入遊戲</button>
+        <button onclick="start_game()">開始遊戲</button>   
+        <ul id="messages"></ul>
+    </ul>
+    
+    <table class="fixed" align="left" style="width:80%;background-color:green;">
+        <tr style="width:10px;height:100px;">
+            <td></td>
+            <td>
+                <label id="lblPlayerName2"></label>
+            </td>
+            <td></td>
+        </tr>
+        
+        <tr style="width:10px;height:100px;">
+            <td>
+                <label id="lblPlayerName1"></label>
+            </td>
+            <td>
+                
+            </td>
+            <td>
+                <label id="lblPlayerName3"></label>
+            </td>        
+        </td>
+        
+        <tr style="width:10px;height:100px;">
+            <td></td>            
+            <td>
+                <label id="lblPlayerName0"></label>
+                
+            </td>
+            <td></td>
+        </tr>
+    </table>
+    
+    <table class="fixed" align="left" style="width:80%;background-color:green;">
+        <tr id="dealCardsPanel" class="fixed" style="height:100px;">
+            <td id="tt0" style="width:5%"></td>
+            <td id="tt1" style="width:5%"></td>
+            <td id="tt2" style="width:5%"></td>
+            <td id="tt3" style="width:5%"></td>            
+            <td id="tt4" style="width:5%"></td>
+            <td id="tt5" style="width:5%"></td>
+            <td id="tt6" style="width:5%"></td>
+            <td id="tt7" style="width:5%"></td>
+            <td id="tt8" style="width:5%"></td>
+            <td id="tt9" style="width:5%"></td>
+            <td id="tt10" style="width:5%"></td>
+            <td id="tt11" style="width:5%"></td>           
+            <td id="tt12"></td>                        
+        </tr>        
+    </table>
+    
+    <ul id="panelDesk">
+        <ul id="msgDesk"></ul>
+        <ul><input type="text" id="txtGuessHands" placeholder="叫幾墩" /><button onclick="guess_hands()">Send</button></ul>        
+        <ul><input type="text" id="txtPlayCard" placeholder="出牌" /><button onclick="play_card()">Send</button></ul>
+        <ul id="msgDesk2"></ul>
+        <ul id="msgRealHands"></ul>
+        <ul id="msgDesk3"></ul>
+    </ul>   
+  
     <script>
-        var socket = io();
+        var gSocket = io();
         
         function join_game()
         {           
-            var name = document.getElementById('name');
-            if (name.value)
+            var name = document.getElementById('name').value;
+            if (name)
             {
-                socket.emit('join game', name.value);
+                gPlayerName = name;
+                gSocket.emit('join game', name);
             }            
         }
         
-        socket.on('join game', function(playerNameList) 
+        function start_game()
         {
-            messages.value = playerNameList;
+            gSocket.emit('start game');           
+            //document.getElementById("panelLogin").innerHTML = '<object type="text/html" data="index2.html?name="' + gPlayerName + '></object>';
+        }       
+        
+        /////////////////////////////////////////////////////////////////////////////////
+        
+        // 獲得玩家名字
+        gSocket.on('get player names', function(playerNames) {        
+            gPlayerNameList = playerNames;
+            
+            // find player's position
+            for (var i = 0; i < MAX_PLAYERS; i++)
+            {
+                if (playerNames[i] == gPlayerName)
+                    gPlayerNo = i;
+            }
+            
+            display_playernames(gPlayerNameList);
+        });                        
+        
+        gSocket.on('deal cards', function(cards) {        
+            deal_cards(cards);
+        });  
+
+        gSocket.on('get guess hands', function(hands) {        
+            gGuessHands = hands;
+            document.getElementById("msgDesk2").innerHTML = hands;
+            if (gTurn == gPlayerNo)
+            {
+                add_message("換你了");
+            }
+        });
+        
+        // 有人出了一張牌
+        gSocket.on('play a card', function(playerNo, card) {   
+            card = parseInt(card);
+            add_message(gPlayerNameList[playerNo] + " 出了 " + card);
+            gDeskCards[playerNo] = card;
+            gTurn = (gTurn + 1) % MAX_PLAYERS;
+            
+            // 四個人都出牌了，看誰吃這墩
+            if (gTurn == gFirstPlayerNo)
+            {
+                gTurn = proc_desk_card();
+                gFirstPlayerNo = gTurn;
+                gRealHands[gTurn]++;
+                document.getElementById("msgRealHands").innerHTML = gRealHands;
+                add_message(gPlayerNameList[gTurn] + "吃了這墩");
+            }            
+            
+            if (gTurn == gPlayerNo)
+                add_message("換你了");
         });        
+
+        function add_message(msg)
+        {
+            var messages = document.getElementById('msgDesk3');
+            var item = document.createElement('li');
+            item.textContent = msg;
+            messages.appendChild(item);
+            window.scrollTo(0, document.body.scrollHeight);        
+        }
     </script>
     
     <script>
@@ -65,5 +194,5 @@
       });
       */
     </script>
-  </body>
+</body>
 </html>
