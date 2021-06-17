@@ -5,6 +5,7 @@ const port = process.env.PORT || 3000;
 
 var gPlayerNameList = ["", "", "", ""];
 var gGameStarted = false;
+var gReady = [1, 1, 1, 1];
 
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html');
@@ -37,8 +38,8 @@ io.on('connection', (socket) => {
         io.emit('deal cards', gCards);
     });
     
-    socket.on('guess hands', (playerNo, hands) => {
-        console.log(socket.nickname + ' ' + playerNo + ': guess hands ' + hands);
+    socket.on('bid', (playerNo, hands) => {
+        console.log(socket.nickname + ' ' + playerNo + ': bid ' + hands);
         gGuessHands[playerNo] = hands;
         
         for (var i = 0; i < MAX_PLAYERS; i++)
@@ -47,14 +48,41 @@ io.on('connection', (socket) => {
                 return;
         }
         
-        io.emit('get guess hands', gGuessHands);   
+        io.emit('get bid', gGuessHands);   
     });
-            
+       
+    // 已完成一墩
+    socket.on('finish turn', (playerNo) => {
+        console.log("finish turn playerNo=" + playerNo);
+        gReady[playerNo] = 1;
+        for (var i = 0; i < MAX_PLAYERS; i++)       
+        {
+            if (gReady[i] == 0)
+                return;
+        }
+        
+        //io.emit('next turn');
+        
+        // 看看是否換電腦出牌
+        while (true)
+        {                        
+            if (gPlayerNameList[gTurn].length > 0)
+                break;
+                
+            card = ai_play_card(gTurn);
+            gDeskCards[gTurn] = card;
+            io.emit('play a card', gTurn, card);  
+
+            gTurn = (gTurn + 1) % MAX_PLAYERS;
+        }        
+    });
+    
     // 玩家出了一張牌
     socket.on('play a card', (playerNo, card) => {
         console.log(socket.nickname + ' ' + playerNo + ': play a card ' + card);
         gDeskCards[playerNo] = card;
-        io.emit('play a card', playerNo, card);               
+        io.emit('play a card', playerNo, card);   
+        gReady[playerNo] = 0;
         
         // 看看是否換電腦出牌
         while (true)
@@ -66,6 +94,7 @@ io.on('connection', (socket) => {
             {
                 gTurn = proc_desk_card();
                 gFirstPlayerNo = gTurn;
+                break;
             }
             console.log(gTurn + " " + gFirstPlayerNo);
             

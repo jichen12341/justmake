@@ -2,6 +2,12 @@ const MAX_PLAYERS = 4;
 const MAX_CARDS = 52;
 const MAX_TRUMPS = 5;
 
+const STATE_IDLE = 0;
+const STATE_BID = 1;
+const STATE_PLAY = 2;
+const STATE_ANIME_EAT = 3;
+
+var gState = STATE_IDLE;
 var gCardSuit = ['S', 'H', 'D', 'C'];
 var gCards = [];
 var gPlayerName;
@@ -9,16 +15,19 @@ var gPlayerNameList = ["", "", "", ""];
 var gPlayerNo; // 0, 1, 2 or 3
 var gTurn = 0;
 var gFirstPlayerNo = 0;
-var gGuessHands = [0, 0, 0, 0];
-var gRealHands = [0, 0, 0, 0];
+var gBid = [0, 0, 0, 0];
+var gEat = [0, 0, 0, 0];
 var gDeskCards = ["", "", "", ""];
 var gTrump = 0;
+var gScore = [0, 0, 0, 0];
+var gDeskCardPending = [-1, -1, -1, -1];
 
 for (var i = 0; i < MAX_CARDS / MAX_PLAYERS; i++)
     gCards.push(0);
 
+// 發牌
 function deal_cards(cards)
-{
+{   
     for (var i = 0; i < MAX_PLAYERS; i++)
     {
         if (gPlayerNameList[i] == "")
@@ -27,7 +36,7 @@ function deal_cards(cards)
     }
     
     for (var i = 0; i < MAX_PLAYERS; i++)
-        gRealHands[i] = 0;
+        gEat[i] = 0;
     
     for (var i = 0; i < MAX_CARDS / MAX_PLAYERS; i++)
     {
@@ -35,43 +44,76 @@ function deal_cards(cards)
     }
     
     gCards.sort(function(a,b) {
-        return a - b;
-    });
+        suitA = Math.floor(a / 13);
+        suitB = Math.floor(b / 13);
+        valueA = a % 13;
+        if (valueA == 0) 
+            valueA = 13;
+        valueB = b % 13;
+        if (valueB == 0)
+            valueB = 13;
+
+        if (suitA == suitB)
+            return valueA - valueB;
+        
+        return suitA - suitB;
+    });    
     
-    /*for (var i = 0; i < MAX_CARDS / MAX_PLAYERS; i++)
-    {
-        value = gCards[i];
-        gCards[i] = gCardSuit[Math.floor(value / 13)] + value % 13;
-    }*/
-    
-    document.getElementById("msgDesk").innerHTML = gCards;   
+    document.getElementById("msgDesk").innerHTML = gCards;   // debug
     display_hand_cards(gCards);
+    display_bid_panel();      
 }
 
-function guess_hands()
+// 玩家叫牌
+function bid()
+{       
+    var bidPanel = document.getElementById("bidPanel");
+    bidPanel.style.display = 'none';
+    console.log(this.innerHTML);
+    bid = this.innerHTML
+    gSocket.emit('bid', gPlayerNo, bid);    
+    gState = STATE_IDLE;
+}
+
+function start_a_new_turn()
 {
-    var hands = document.getElementById('txtGuessHands').value;
-    gSocket.emit('guess hands', gPlayerNo, hands);
+    if (gTurn == gPlayerNo)
+    {
+        gState = STATE_PLAY;
+        display_message("換你了");   
+        return;
+    }      
 }
 
 // 玩家出一張牌
 function play_card()
 {
-    var card = parseInt(document.getElementById('txtPlayCard').value);
-    if (validate_card(card) == true)
+    console.log(gState + " " + this.tag);
+    if (gState == STATE_PLAY)
     {
-        gSocket.emit('play a card', gPlayerNo, card);
-        var index = gCards.indexOf(card);
-        gCards[index] = -1;
-        document.getElementById('msgDesk').innerHTML = gCards;
+        display_message("");
+        
+        var card = parseInt(this.tag);
+        if (validate_card(card) == true)
+        {
+            gState = STATE_IDLE;
+            
+            var index = gCards.indexOf(card);
+            gCards[index] = -1;
+            display_hand_cards(gCards);
+            document.getElementById('msgDesk').innerHTML = gCards;
+            
+            gSocket.emit('play a card', gPlayerNo, card);
+        }
+        else
+            display_message("不可出此牌 " + card);               
     }
-    else
-        add_message("不可出此牌 " + card);
 }
 
 // 是否可以出這張牌
 function validate_card(card)
 {
+    console.log(gCards);
     // 第一人可以任出一張牌
     if (gTurn == gFirstPlayerNo)
         return true;
@@ -84,7 +126,7 @@ function validate_card(card)
     for (var i = 0; i < 13; i++)
     {
         if (gCards[i] == -1) continue;
-        if (gCards[i] == card) continue;
+        if (gCards[i] == card) continue;        
         console.log(i + " " + gCards[i] + " " + gFirstPlayerNo + " " + gDeskCards[gFirstPlayerNo]);
         if (get_card_suit(gCards[i]) == get_card_suit(gDeskCards[gFirstPlayerNo]))
             return false;
@@ -93,7 +135,7 @@ function validate_card(card)
 }
 
 // 四個人都出牌了，看誰吃這墩
-function proc_desk_card()
+function get_next_first_player()
 {
     card = gDeskCards[gFirstPlayerNo];
     turn = gFirstPlayerNo;
