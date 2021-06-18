@@ -14,132 +14,123 @@
         #messages > li { padding: 0.5rem 1rem; }
         #messages > li:nth-child(odd) { background: #efefef; }
 
-        #msgDesk { list-style-type: none; margin: 0; padding: 0; }
-        
-        table.fixed { table-layout:fixed; }
-        table.fixed td { overflow: hidden; }
+        #msgDesk { list-style-type: none; margin: 0; padding: 0; }       
     </style>
     <script src="/socket.io/socket.io.js"></script>
     <script src="client_game.js"></script>
        
 </head>
-<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-
-<body>    
+<!--<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">-->
+<link rel="stylesheet" href="cards.css">
+<body>      
     <ul id="panelLogin">
         <input type="text" id="name" value="ttt" placeholder="暱稱" /> 
-        <button onclick="join_game()">加入遊戲</button>
-        <button onclick="start_game()">開始遊戲</button>   
-        <ul id="messages"></ul>
-    </ul>
-        
+        <button id="btnJoin" onclick="join_game(this)" />加入遊戲</button>
+        <button id="btnStart" onclick="start_game()" hidden />開始遊戲</button>     
+    </ul>   
+    
     <!-- 第1層table -->
     <table id="table1" class="fixed" align="left" style="width:80%;background-color:green;">
         <tr>
             <td></td>
             <td>
-                <li id="lblPlayerName2"></li>
-                <li id="lblBid2"></li>
-                <li id="lblEat2"></li>
-                <label id="lblScore2"></label>
+                <ul id="playerPanel2" class="player">
+                    <li id="lblPlayerName2"></li>
+                    <li id="lblBid2"></li>
+                    <li id="lblEat2"></li>
+                    <li id="lblScore2"></li>
+                </ul>
             </td>
             <td></td>
         </tr>
-    </table>
-    
+    </table>   
+        
     <!-- 第2層table -->
     <table id="table2" class="fixed" align="left" style="width:80%;background-color:green;">
         <tr>
-            <td></td>
-            <td id="deskPanel2" style="width:5%;"></td>
-            <td></td>
-        </tr>
+            <td style="width:10%;">
+                <ul id="playerPanel1" class="player">
+                    <li id="lblPlayerName1"></li>
+                    <li id="lblBid1"><li>
+                    <li id="lblEat1"></li>
+                    <li id="lblScore1"></li>
+                </ul>
+            </td>            
+
+            <td class="playingCards">
+                <ul class="desk">
+                    <li id="deskPanel0"></div></li>
+                    <li id="deskPanel1"></div></li>
+                    <li id="deskPanel2"></div></li>
+                    <li id="deskPanel3"></div></li>
+                </ul>
+            </td>
+            
+            <td style="width:10%;">
+                <ul id="playerPanel3" class="player">
+                    <li id="lblPlayerName3"></li>
+                    <li id="lblBid3"></li>
+                    <li id="lblEat3"></li>
+                    <li id="lblScore3"></li>
+                </ul>
+            </td>        
+        </td>
     </table>
-        
+       
     <!-- 第3層table -->
     <table id="table3" class="fixed" align="left" style="width:80%;background-color:green;">
         <tr>
+            <td><ul id="bidPanel" class="hand"></td>            
             <td>
-                <li id="lblPlayerName1"></li>
-                <li id="lblBid1"><li>
-                <li id="lblEat1"></li>
-            </td>            
-            <td id="deskPanel1" style="width:5%;"></td>
-            <td id="lblMessage"></td>
-            <td id="deskPanel3" style="width:5%;"></td>
-            <td>
-                <li id="lblPlayerName3"></li>
-                <li id="lblBid3"></li>
-                <li id="lblEat3"></li>
-            </td>        
-        </td>
+                <ul id="playerPanel0" class="player">
+                    <li id="lblPlayerName0"></li>
+                    <li id="lblBid0"></li>
+                    <li id="lblEat0"></li>
+                    <li id="lblScore0"></li>
+                </ul>
+            </td>
+            
+            <td></td>
+        </tr>
     </table>
     
     <!-- 第4層table -->
     <table id="table4" class="fixed" align="left" style="width:80%;background-color:green;">
         <tr>
-            <td></td>            
-            <td id="deskPanel0" style="width:5%;"></td>
-            <td></td>
-        </tr>
-    </table>
-    
-    <!-- 第5層table -->
-    <table id="table5" class="fixed" align="left" style="width:80%;background-color:green;">
-        <tr>
-            <td></td>            
-            <td>
-                <li id="lblPlayerName0"></li>
-                <li id="lblBid0"></li>
-                <li id="lblEat0"></li>
+            <td class="playingCards">
+                <ul class="hand">
+                    <li id="handCardsPanel0"><a class="card" id="cHandCardsPanel0"></a></li>
+                    <li id="handCardsPanel1"><a class="card" id="cHandCardsPanel1" ></a></li>
+                    <li id="handCardsPanel2"><a class="card" id="cHandCardsPanel2" ></a></li>
+                    <li id="handCardsPanel3"><a class="card" id="cHandCardsPanel3" ></a></li>            
+                    <li id="handCardsPanel4"><a class="card" id="cHandCardsPanel4" ></a></li>
+                    <li id="handCardsPanel5"><a class="card" id="cHandCardsPanel5" ></a></li>
+                    <li id="handCardsPanel6"><a class="card" id="cHandCardsPanel6" ></a></li>
+                    <li id="handCardsPanel7"><a class="card" id="cHandCardsPanel7" ></a></li>
+                    <li id="handCardsPanel8"><a class="card" id="cHandCardsPanel8" ></a></li>
+                    <li id="handCardsPanel9"><a class="card" id="cHandCardsPanel9" ></a></li>
+                    <li id="handCardsPanel10"><a class="card" id="cHandCardsPanel10" ></a></li>
+                    <li id="handCardsPanel11"><a class="card" id="cHandCardsPanel11" ></a></li>           
+                    <li id="handCardsPanel12"><a class="card" id="cHandCardsPanel12" ></a></li> 
+                </ul>
                 
             </td>
-            <td></td>
+           
         </tr>
-    </table>
-    
-    <!-- 第6層table -->
-    <table id="table6" class="fixed" align="left" style="width:80%;background-color:green;">
-        <tr>
-            <td id="handCardsPanel0" style="width:5%"></td>
-            <td id="handCardsPanel1" style="width:5%"></td>
-            <td id="handCardsPanel2" style="width:5%"></td>
-            <td id="handCardsPanel3" style="width:5%"></td>            
-            <td id="handCardsPanel4" style="width:5%"></td>
-            <td id="handCardsPanel5" style="width:5%"></td>
-            <td id="handCardsPanel6" style="width:5%"></td>
-            <td id="handCardsPanel7" style="width:5%"></td>
-            <td id="handCardsPanel8" style="width:5%"></td>
-            <td id="handCardsPanel9" style="width:5%"></td>
-            <td id="handCardsPanel10" style="width:5%"></td>
-            <td id="handCardsPanel11" style="width:5%"></td>           
-            <td id="handCardsPanel12" style="width:5%"></td>    
-            <td>
-                <div id="bidPanel"></div>
-            </td>
-        </tr>        
-    </table>
-    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-    <ul id="panelDesk">
-        <ul id="msgDesk"></ul>
-        <ul><input type="text" id="txtGuessHands" placeholder="叫幾墩" /><button onclick="guess_hands()">Send</button></ul>        
-        <ul><input type="text" id="txtPlayCard" placeholder="出牌" /><button onclick="play_card()">Send</button></ul>
-        <ul id="msgDesk2"></ul>
-        <ul id="msgRealHands"></ul>
-        <ul id="msgDesk3"></ul>
-    </ul>   
+    </table>     
     
     <script src="client_layout.js"></script> 
     <script>
         var gSocket = io();
         
-        function join_game()
+        function join_game(btn)
         {           
             var name = document.getElementById('name').value;
             if (name)
             {
+                document.getElementById(btn.id).disabled = true;
                 gPlayerName = name;
-                gSocket.emit('join game', name);
+                gSocket.emit('join game', name);                               
             }            
         }
         
@@ -161,6 +152,9 @@
                 if (playerNames[i] == gPlayerName)
                     gPlayerNo = i;
             }
+            
+            // 桌長可以按開始遊戲
+            document.getElementById("btnStart").style.display = "block";
             
             display_playernames(gPlayerNameList);
         });                        
@@ -192,15 +186,20 @@
                 gTurn = get_next_first_player();
                 gFirstPlayerNo = gTurn;
                 gEat[gTurn]++;
-                document.getElementById("msgRealHands").innerHTML = gEat;
                 add_message(gPlayerNameList[gTurn] + "吃了這墩");                
                 display_eat(gTurn);         
             }   
 
-            if (gTurn == gPlayerNo)
+            if (gHandCardLeft == 0)
+            {
+                calculate_score();
+                display_score(gScore);
+            }
+            else if (gTurn == gPlayerNo)
             {
                 gState = STATE_PLAY;
-                display_message("換你了");
+                display_your_turn(true);
+                console.log("換你了");
             }              
         });        
 

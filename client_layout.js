@@ -1,6 +1,8 @@
 var gCardImages = [];
 var gWindowHeight = window.innerHeight;
 var gWindowWidth = window.innerWidth;
+var gCardHeight;
+var gCardWidth;
 
 init_layout();
 
@@ -9,21 +11,55 @@ function sleep(ms) {
 }
 
 function init_layout()
-{    
-    var i;
-    for (i = 0; i < MAX_CARDS; i++)
+{
+    // load playing cards
+    for (var i = 0; i < MAX_CARDS; i++)
     {
         var img = new Image();
         img.src = "images/" + i + ".jpg";
         img.tag = i;
         img.onclick = play_card;
-        img.style = 'height: 100%; width: 100%; object-fit: contain';
+        //img.style = 'height: 100%; width: 100%;';// object-fit: contain';
         gCardImages.push(img);
     }
+    gCardHeight = gCardImages[0].height;
+    gCardWidth = gCardImages[0].width;
 
-    document.getElementById('table2').style.height = Math.floor(gWindowHeight / 6) + "px";
+    // Adjust size of each table
+    document.getElementById('table1').style.height = Math.floor(gWindowHeight / 6) + "px";
+    document.getElementById('table2').style.height = Math.floor(2 * gWindowHeight / 6) + "px";
     document.getElementById('table3').style.height = Math.floor(gWindowHeight / 6) + "px";
     document.getElementById('table4').style.height = Math.floor(gWindowHeight / 6) + "px";
+    
+    // Adjust Desk card position
+    var table = document.getElementById('table2');
+    var width = table.rows[0].cells[1].offsetWidth;
+    var height = table.rows[0].cells[1].offsetHeight;
+    
+    var x, y;
+    x = width/2;
+    y = height/2;
+    document.getElementById('deskPanel0').style.transform = "translate(" + x + "px, " + y + "px)";
+    
+    x = (width/2 - gCardWidth*2);
+    y = (height/2 - gCardHeight/2);
+    document.getElementById('deskPanel1').style.transform = "translate(" + x + "px, " + y + "px)";
+    
+    x = (width/2 - gCardWidth*2);
+    y = (height/2 - gCardHeight);
+    document.getElementById('deskPanel2').style.transform = "translate(" + x + "px, " + y + "px)";  
+    
+    x = (width/2 - gCardWidth*2);
+    y = (height/2 - gCardHeight/2 );
+    document.getElementById('deskPanel3').style.transform = "translate(" + x + "px, " + y + "px)";
+    
+    for (var i = 0; i < MAX_PLAYERS; i++)
+    {
+        var deskPanel = document.getElementById('deskPanel' + i);
+        deskPanel.style.width = gCardWidth + "px";
+        deskPanel.style.height = gCardHeight + "px";
+        deskPanel.style.border = "1px solid #666";               
+    }
 }
 
 function display_playernames(playerNames)
@@ -55,7 +91,7 @@ function display_bid_label(bid)
 }
     
 function display_hand_cards(cards)
-{
+{/*
     var index = 0;
     for (var i = 0; i < cards.length; i++)
     {   
@@ -65,6 +101,22 @@ function display_hand_cards(cards)
             handCardsPanel.innerHTML = "";
             handCardsPanel.appendChild(gCardImages[cards[i]]);
             index++;
+        }        
+    }*/
+    
+    var index = 0;
+    
+    for (var i = 0; i < cards.length; i++)
+    {   
+        if (cards[i] >= 0)
+        {                        
+            var cHandCardsPanel = document.getElementById('cHandCardsPanel' + index);
+            cHandCardsPanel.innerHTML = "";
+            cHandCardsPanel.appendChild(gCardImages[cards[i]]);
+            
+            var handCardsPanel = document.getElementById('handCardsPanel' + index);
+            handCardsPanel.style = "transform: translate(" + (-3 * index) + "em, 0em);"
+            index++;           
         }        
     }
 }
@@ -123,18 +175,7 @@ async function display_eat(playerNo)
     deskPanel.innerHTML = "";
     
     display_eat_label();   
-
-    /*for (var i = 0; i < MAX_PLAYERS; i++)
-    {
-        if (gDeskCardPending[i] >= 0)
-        {
-            display_desk_card(i, gDeskCardPending[i]);
-            gDeskCardPending[i] = -1;
-        }
-    } */
-  
-    //else 
-        //gState = STATE_IDLE;    
+   
     
     // 告知伺服器已完成一墩
     console.log("finish turn");
@@ -143,6 +184,26 @@ async function display_eat(playerNo)
 
 function display_message(msg)
 {
-    var lblMessage = document.getElementById("lblMessage");
-    lblMessage.innerHTML = msg;
+    //var lblMessage = document.getElementById("lblMessage");
+    //lblMessage.innerHTML = msg;
+}
+
+function display_your_turn(enable)
+{    
+    /*var playerPanel = document.getElementById("playerPanel0");
+    if (enable)
+        playerPanel.classList.add("yourturn");
+    else
+        playerPanel.classList.remove("yourturn");*/
+}
+
+function display_score(score)
+{
+    for (var i = 0; i < MAX_PLAYERS; i++)
+    {
+        var index = (i + MAX_PLAYERS - gPlayerNo) % MAX_PLAYERS;
+        
+        var lblScore = document.getElementById("lblScore" + index);
+        lblScore.innerHTML = gScoreOld[i] + " --> " + gScore[i];
+    }
 }

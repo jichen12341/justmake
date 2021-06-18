@@ -1,3 +1,4 @@
+// <ul id=xxx class=xxx> classList.add .remove
 const MAX_PLAYERS = 4;
 const MAX_CARDS = 52;
 const MAX_TRUMPS = 5;
@@ -20,7 +21,8 @@ var gEat = [0, 0, 0, 0];
 var gDeskCards = ["", "", "", ""];
 var gTrump = 0;
 var gScore = [0, 0, 0, 0];
-var gDeskCardPending = [-1, -1, -1, -1];
+var gScoreOld = [0, 0, 0, 0];
+var gHandCardLeft;
 
 for (var i = 0; i < MAX_CARDS / MAX_PLAYERS; i++)
     gCards.push(0);
@@ -28,6 +30,8 @@ for (var i = 0; i < MAX_CARDS / MAX_PLAYERS; i++)
 // 發牌
 function deal_cards(cards)
 {   
+    gHandCardLeft = MAX_CARDS / MAX_PLAYERS;
+    
     for (var i = 0; i < MAX_PLAYERS; i++)
     {
         if (gPlayerNameList[i] == "")
@@ -59,7 +63,7 @@ function deal_cards(cards)
         return suitA - suitB;
     });    
     
-    document.getElementById("msgDesk").innerHTML = gCards;   // debug
+    add_message(gCards);   // debug
     display_hand_cards(gCards);
     display_bid_panel();      
 }
@@ -70,7 +74,7 @@ function bid()
     var bidPanel = document.getElementById("bidPanel");
     bidPanel.style.display = 'none';
     console.log(this.innerHTML);
-    bid = this.innerHTML
+    bid = parseInt(this.innerHTML);
     gSocket.emit('bid', gPlayerNo, bid);    
     gState = STATE_IDLE;
 }
@@ -80,7 +84,8 @@ function start_a_new_turn()
     if (gTurn == gPlayerNo)
     {
         gState = STATE_PLAY;
-        display_message("換你了");   
+        display_your_turn(true);
+        console.log("換你了");   
         return;
     }      
 }
@@ -91,7 +96,8 @@ function play_card()
     console.log(gState + " " + this.tag);
     if (gState == STATE_PLAY)
     {
-        display_message("");
+        gHandCardLeft--;
+        display_your_turn(false);
         
         var card = parseInt(this.tag);
         if (validate_card(card) == true)
@@ -101,7 +107,7 @@ function play_card()
             var index = gCards.indexOf(card);
             gCards[index] = -1;
             display_hand_cards(gCards);
-            document.getElementById('msgDesk').innerHTML = gCards;
+            //document.getElementById('msgDesk').innerHTML = gCards;
             
             gSocket.emit('play a card', gPlayerNo, card);
         }
@@ -185,4 +191,29 @@ function card_is_trump(card)
     if (get_card_suit(card) == gTrump)
         return true;
     return false;
+}
+
+function calculate_score()
+{
+    for (i = 0; i < MAX_PLAYERS; i++)
+    {
+        gScoreOld[i] = gScore[i];
+        
+        var eat = gEat[i];
+        var bid = gBid[i];
+        
+        if (bid == 0)
+        {
+            if (eat == 0)
+                gScore[i] += 7;
+            else
+                gScore[i] -= (7 + eat);
+        }
+        else if (eat == bid)
+            gScore[i] += eat;
+        else if (eat > bid)
+            gScore[i] += (bid - (eat - bid));
+        else
+            gScore[i] -= (bid + (bid - eat));
+    }
 }
