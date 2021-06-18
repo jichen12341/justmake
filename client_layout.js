@@ -1,4 +1,5 @@
 var gCardImages = [];
+var gBidButtons = [];
 var gWindowHeight = window.innerHeight;
 var gWindowWidth = window.innerWidth;
 var gCardHeight;
@@ -59,6 +60,20 @@ function init_layout()
         deskPanel.style.width = gCardWidth + "px";
         deskPanel.style.height = gCardHeight + "px";
         deskPanel.style.border = "1px solid #666";               
+    }
+    
+    // Generate bid buttons
+    var bidPanel = document.getElementById("bidPanel");
+    bidPanel.style.display = 'none';
+    
+    for (var i = 0; i <= 13; i++)
+    {
+        var btn = document.createElement("button");
+        btn.innerHTML = i;
+        btn.style.width = '50px';
+        btn.style.height = '50px';
+        btn.onclick = bid;
+        bidPanel.appendChild(btn);
     }
 }
 
@@ -124,17 +139,7 @@ function display_hand_cards(cards)
 function display_bid_panel()
 {
     var bidPanel = document.getElementById("bidPanel");
-    bidPanel.style.display = 'block';
-    
-    for (var i = 0; i <= 13; i++)
-    {
-        var btn = document.createElement("button");
-        btn.innerHTML = i;
-        btn.style.width = '50px';
-        btn.style.height = '50px';
-        btn.onclick = bid;
-        bidPanel.appendChild(btn);
-    }
+    bidPanel.style.display = 'block';    
 }
 
 function display_eat_label()
@@ -178,10 +183,6 @@ async function display_eat(playerNo)
     display_eat_label();   
    
     
-    // 告知伺服器已完成一墩
-    console.log("finish turn");
-    gSocket.emit('finish turn', gPlayerNo);    
-
     if (gHandCardLeft == 0)
     {
         calculate_score();
@@ -193,7 +194,11 @@ async function display_eat(playerNo)
         gState = STATE_PLAY;
         display_your_turn(true);
         console.log("換你了");
-    }      
+    } 
+    
+    // 告知伺服器已完成一墩
+    console.log("finish turn");
+    gSocket.emit('finish turn', gPlayerNo);         
 }
 
 function display_message(msg)
@@ -218,6 +223,12 @@ function display_score(score)
         var index = (i + MAX_PLAYERS - gPlayerNo) % MAX_PLAYERS;
         
         var lblScore = document.getElementById("lblScore" + index);
-        lblScore.innerHTML = gScoreOld[i] + " --> " + gScore[i];
+        lblScore.innerHTML = "總分: " + gScoreOld[i] + " --> " + gScore[i];
     }
+}
+
+function display_trump()
+{
+    var lblTrump = document.getElementById("lblTrump");
+    lblTrump.innerHTML = "王牌: " + gCardSuit[gTrump];
 }

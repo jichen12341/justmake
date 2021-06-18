@@ -6,7 +6,6 @@ const port = process.env.PORT || 3000;
 var gPlayerNameList = ["", "", "", ""];
 var gGameStarted = false;
 var gReady = [1, 1, 1, 1];
-var gHandCardLeft;
 
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html');
@@ -39,9 +38,9 @@ io.on('connection', (socket) => {
         io.emit('deal cards', gCards);
     });
     
-    socket.on('bid', (playerNo, hands) => {
-        console.log(socket.nickname + ' ' + playerNo + ': bid ' + hands);
+    socket.on('bid', (playerNo, hands) => {        
         gGuessHands[playerNo] = hands;
+        console.log(socket.nickname + ' ' + playerNo + ': bid ' + hands + " " + gGuessHands);
         
         for (var i = 0; i < MAX_PLAYERS; i++)
         {
@@ -49,7 +48,20 @@ io.on('connection', (socket) => {
                 return;
         }
         
-        io.emit('get bid', gGuessHands);   
+        io.emit('get bid', gGuessHands);
+
+        // 看看是否換電腦出牌
+        while (true)
+        {                        
+            if (gPlayerNameList[gTurn].length > 0)
+                break;
+                
+            card = ai_play_card(gTurn);
+            gDeskCards[gTurn] = card;
+            io.emit('play a card', gTurn, card);  
+
+            gTurn = (gTurn + 1) % MAX_PLAYERS;
+        }        
     });
        
     // 已完成一墩
@@ -67,6 +79,8 @@ io.on('connection', (socket) => {
         {
             // 已完成一局
             console.log("finish a game");
+            start_next_game();
+            io.emit('deal cards', gCards);
             return;
         }
         //io.emit('next turn');
@@ -96,15 +110,15 @@ io.on('connection', (socket) => {
         while (true)
         {
             gTurn = (gTurn + 1) % MAX_PLAYERS;
-
+            console.log("play a card: gTurn/gFirstPlayerNo= " + gTurn + " " + gFirstPlayerNo);
+            
             // 四個人都出牌了，看誰吃這墩
             if (gTurn == gFirstPlayerNo)
             {
                 gTurn = proc_desk_card();
                 gFirstPlayerNo = gTurn;
                 break;
-            }
-            console.log(gTurn + " " + gFirstPlayerNo);
+            }            
             
             if (gPlayerNameList[gTurn].length > 0)
                 break;
@@ -136,26 +150,49 @@ http.listen(port, () => {
 //////////////////////  game related //////////////////
 const MAX_CARDS = 52;
 const MAX_PLAYERS = 4;
+const MAX_CARD_SUITE = 5;
 
 var gCards = [];
 var gTurn = 0;
 var gFirstPlayerNo = 0;
+var gNextFirstPlayerNo = 0;
 var gGuessHands = [-1, -1, -1, -1];
 var gDeskCards = [-1, -1, -1, -1];
-var gCardSuit = ['S', 'H', 'D', 'C'];
+var gCardSuit = ['S', 'H', 'D', 'C', 'N'];
 var gTrump = 0;
+var gHandCardLeft;
+
 
 for (var i = 0; i < MAX_CARDS; i++)
     gCards.push(i); 
     
+// 遊戲開始時執行一次
 function start_game()
 {
     gGameStarted = true;
-   
-    gFirstPlayerNo = gTurn;
+    gTurn = 0;
+    gFirstPlayerNo = 0;
+    gNextFirstPlayerNo = MAX_PLAYERS - 1;
+    gTrump = MAX_CARD_SUITE - 1;
+    
+    start_next_game();
+}
+
+// 每一回合執行一次
+function start_next_game()
+{  
+    console.log("start_next_game");
+    
+    gNextFirstPlayerNo = (gNextFirstPlayerNo + 1) % MAX_PLAYERS;    
+    gFirstPlayerNo = gNextFirstPlayerNo;
+    gTurn = gFirstPlayerNo;
+    gTrump = (gTrump + 1) % MAX_CARD_SUITE;
        
-    for (var i = 0; i < MAX_PLAYERS; i++)       
+    for (var i = 0; i < MAX_PLAYERS; i++)
+    {        
         gGuessHands[i] = -1;
+        gDeskCards[i] = -1;
+    }
     
     for (var i = 0; i < MAX_PLAYERS; i++)
     {        

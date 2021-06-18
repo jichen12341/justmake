@@ -1,7 +1,7 @@
 // <ul id=xxx class=xxx> classList.add .remove
 const MAX_PLAYERS = 4;
 const MAX_CARDS = 52;
-const MAX_TRUMPS = 5;
+const MAX_CARD_SUIT = 5;
 
 const STATE_IDLE = 0;
 const STATE_BID = 1;
@@ -9,17 +9,18 @@ const STATE_PLAY = 2;
 const STATE_ANIME_EAT = 3;
 
 var gState = STATE_IDLE;
-var gCardSuit = ['S', 'H', 'D', 'C'];
+var gCardSuit = ['S', 'H', 'D', 'C', 'N'];
 var gCards = [];
 var gPlayerName;
 var gPlayerNameList = ["", "", "", ""];
 var gPlayerNo; // 0, 1, 2 or 3
 var gTurn = 0;
 var gFirstPlayerNo = 0;
+var gNextFirstPlayerNo = MAX_PLAYERS - 1;
 var gBid = [0, 0, 0, 0];
 var gEat = [0, 0, 0, 0];
 var gDeskCards = ["", "", "", ""];
-var gTrump = 0;
+var gTrump = MAX_CARD_SUIT - 1;
 var gScore = [0, 0, 0, 0];
 var gScoreOld = [0, 0, 0, 0];
 var gHandCardLeft;
@@ -30,7 +31,12 @@ for (var i = 0; i < MAX_CARDS / MAX_PLAYERS; i++)
 // 發牌
 function deal_cards(cards)
 {   
-    gHandCardLeft = MAX_CARDS / MAX_PLAYERS;
+    gNextFirstPlayerNo = (gNextFirstPlayerNo + 1) % MAX_PLAYERS;
+    gFirstPlayerNo = gNextFirstPlayerNo;
+    gTurn = gFirstPlayerNo;
+    gTrump = (gTrump + 1) % MAX_CARD_SUIT;
+    
+    gHandCardLeft = MAX_CARDS / MAX_PLAYERS;    
     
     for (var i = 0; i < MAX_PLAYERS; i++)
     {
@@ -65,7 +71,8 @@ function deal_cards(cards)
     
     add_message(gCards);   // debug
     display_hand_cards(gCards);
-    display_bid_panel();      
+    display_bid_panel();   
+    display_trump();
 }
 
 // 玩家叫牌
