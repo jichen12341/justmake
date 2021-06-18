@@ -124,7 +124,8 @@ function display_hand_cards(cards)
 function display_bid_panel()
 {
     var bidPanel = document.getElementById("bidPanel");
-        
+    bidPanel.style.display = 'block';
+    
     for (var i = 0; i <= 13; i++)
     {
         var btn = document.createElement("button");
@@ -179,7 +180,20 @@ async function display_eat(playerNo)
     
     // 告知伺服器已完成一墩
     console.log("finish turn");
-    gSocket.emit('finish turn', gPlayerNo);     
+    gSocket.emit('finish turn', gPlayerNo);    
+
+    if (gHandCardLeft == 0)
+    {
+        calculate_score();
+        display_score(gScore);
+        gState = STATE_BID;
+    }
+    else if (gTurn == gPlayerNo)
+    {
+        gState = STATE_PLAY;
+        display_your_turn(true);
+        console.log("換你了");
+    }      
 }
 
 function display_message(msg)

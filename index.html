@@ -189,12 +189,6 @@
                 add_message(gPlayerNameList[gTurn] + "吃了這墩");                
                 display_eat(gTurn);         
             }   
-
-            if (gHandCardLeft == 0)
-            {
-                calculate_score();
-                display_score(gScore);
-            }
             else if (gTurn == gPlayerNo)
             {
                 gState = STATE_PLAY;
