@@ -6,6 +6,7 @@ const port = process.env.PORT || 3000;
 var gPlayerNameList = ["", "", "", ""];
 var gGameStarted = false;
 var gReady = [1, 1, 1, 1];
+var gHandCardLeft;
 
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html');
@@ -53,7 +54,7 @@ io.on('connection', (socket) => {
        
     // 已完成一墩
     socket.on('finish turn', (playerNo) => {
-        console.log("finish turn playerNo=" + playerNo);
+        console.log("finish turn playerNo/gHandCardLeft=" + playerNo + " " + gHandCardLeft);
         gReady[playerNo] = 1;
         for (var i = 0; i < MAX_PLAYERS; i++)       
         {
@@ -61,6 +62,13 @@ io.on('connection', (socket) => {
                 return;
         }
         
+        gHandCardLeft--;
+        if (gHandCardLeft == 0)
+        {
+            // 已完成一局
+            console.log("finish a game");
+            return;
+        }
         //io.emit('next turn');
         
         // 看看是否換電腦出牌
@@ -160,6 +168,7 @@ function start_game()
     for (var i = 0; i < MAX_CARDS; i++)
         gCards[i] = i;
     shuffle_cards();
+    gHandCardLeft = MAX_CARDS / MAX_PLAYERS;
     console.log(gCards.toString());    
 }
 
