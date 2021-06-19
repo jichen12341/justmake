@@ -18,6 +18,7 @@ app.get('/*.*', (req, res) => {
 
 io.on('connection', (socket) => {
     socket.on('join game', name => {
+        console.log(name, "join game", gGameStarted, gPlayerNameList);
         if (gGameStarted)
             return;
         

@@ -96,6 +96,12 @@ function bid()
     bidPanel.style.display = 'none';
     console.log(this.innerHTML);
     bid = parseInt(this.innerHTML);
+    
+    for (var i = 0; i < MAX_PLAYERS; i++)
+        gBid[i] = "等待其他人叫牌";
+    gBid[gPlayerNo] = bid;
+    display_bid_label(gBid);
+    
     gSocket.emit('bid', gPlayerNo, bid);    
     gState = STATE_IDLE;
 }

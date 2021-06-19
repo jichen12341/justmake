@@ -278,6 +278,8 @@ function display_trump()
     var lblTrump = document.getElementById("lblTrump");
     if (gTrump == 1 || gTrump == 2)
         lblTrump.style.color = "red";
+    else
+        lblTrump.style.color = "black";
     lblTrump.innerHTML = "王牌: " + gCardSuit[gTrump];    
 }
 
