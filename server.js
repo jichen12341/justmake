@@ -161,10 +161,6 @@ var gDeskCards = [-1, -1, -1, -1];
 var gCardSuit = ['S', 'H', 'D', 'C', 'N'];
 var gTrump = 0;
 var gHandCardLeft;
-
-
-for (var i = 0; i < MAX_CARDS; i++)
-    gCards.push(i); 
     
 // 遊戲開始時執行一次
 function start_game()
@@ -174,6 +170,9 @@ function start_game()
     gFirstPlayerNo = 0;
     gNextFirstPlayerNo = MAX_PLAYERS - 1;
     gTrump = MAX_CARD_SUITE - 1;
+
+    for (var i = 0; i < MAX_CARDS; i++)
+        gCards.push(i); 
     
     start_next_game();
 }
@@ -187,7 +186,7 @@ function start_next_game()
     gFirstPlayerNo = gNextFirstPlayerNo;
     gTurn = gFirstPlayerNo;
     gTrump = (gTrump + 1) % MAX_CARD_SUITE;
-       
+          
     for (var i = 0; i < MAX_PLAYERS; i++)
     {        
         gGuessHands[i] = -1;
@@ -203,7 +202,7 @@ function start_next_game()
     }
     
     for (var i = 0; i < MAX_CARDS; i++)
-        gCards[i] = i;
+        gCards[i] = i;    
     shuffle_cards();
     gHandCardLeft = MAX_CARDS / MAX_PLAYERS;
     console.log(gCards.toString());    

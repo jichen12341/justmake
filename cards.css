@@ -1,18 +1,27 @@
-table.fixed { table-layout:fixed; float: left;}
+table.fixed { 
+    table-layout:fixed; 
+    float: left;
+}
 table, th, td {
   //border: 1px solid black;
 }
 /*table.fixed td { overflow: hidden; }*/
 
 .player {
-    width: 100px;
+    width: 150px;
     height: 100px;
     border: 1px solid black;
     list-style-type: none;
+    margin: 0; 
+    padding: 0;
 }
 
 .yourturn{
     animation:blinkingText 1.2s infinite;
+}
+
+.playingCards {
+    position: relative; 
 }
 
 .playingCards ul.desk li {
@@ -20,14 +29,24 @@ table, th, td {
     padding: 0;
     list-style-type: none;
     float: left;
-}
+    border: 1px solid #666;
+    
+    /* 四張桌面排先疊在一起，然後再transform */
+    position: absolute; 
+    top:0; left:0; bottom: 0; right: 0;  
 
+//box-shadow: .2em .2em .5em #333;    
+}
 
 .playingCards ul.hand li {
     margin: 0;
     padding: 0;
     list-style-type: none;
     float: left;
+    
+    /* 所有排先疊在一起，然後再transform */
+    position: absolute; 
+    top:0; left:0; bottom: 0; right: 0;
 }
 
 .playingCards .card {
@@ -44,4 +63,9 @@ table, th, td {
 .playingCards strong .card {
     bottom: 3em;
     cursor: pointer;
+}
+
+/* 顯示王牌 */
+.trump {
+    font-size: 200%;
 }

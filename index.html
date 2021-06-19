@@ -26,13 +26,13 @@
     <ul id="panelLogin">
         <input type="text" id="name" value="ttt" placeholder="暱稱" /> 
         <button id="btnJoin" onclick="join_game(this)" />加入遊戲</button>
-        <button id="btnStart" onclick="start_game()" hidden />開始遊戲</button>     
+        <button id="btnStart" onclick="start_game(this)" hidden />開始遊戲</button>     
     </ul>   
     
     <!-- 第1層table -->
     <table id="table1" class="fixed" align="left" style="width:80%;background-color:green;">
         <tr>
-            <td><li id="lblTrump"></li></td>
+            <td><li id="lblTrump" class="trump"></li></td>
             <td>
                 <ul id="playerPanel2" class="player">
                     <li id="lblPlayerName2"></li>
@@ -41,14 +41,14 @@
                     <li id="lblScore2"></li>
                 </ul>
             </td>
-            <td align="right">v0.3</td>
+            <td align="right">v0.4</td>
         </tr>
     </table>   
         
     <!-- 第2層table -->
     <table id="table2" class="fixed" align="left" style="width:80%;background-color:green;">
         <tr>
-            <td style="width:10%;">
+            <td style="width:20%;">
                 <ul id="playerPanel1" class="player">
                     <li id="lblPlayerName1"></li>
                     <li id="lblBid1"><li>
@@ -66,12 +66,12 @@
                 </ul>
             </td>
             
-            <td style="width:10%;">
+            <td style="width:20%;">
                 <ul id="playerPanel3" class="player">
                     <li id="lblPlayerName3"></li>
                     <li id="lblBid3"></li>
                     <li id="lblEat3"></li>
-                    <li id="lblScore3"></li>
+                    <li id="lblScore3"></li>                    
                 </ul>
             </td>        
         </td>
@@ -83,7 +83,7 @@
             <td><ul id="bidPanel" class="hand"></td>            
             <td>
                 <ul id="playerPanel0" class="player">
-                    <li id="lblPlayerName0"></li>
+                    <li id="lblPlayerName0">請加入遊戲</li>
                     <li id="lblBid0"></li>
                     <li id="lblEat0"></li>
                     <li id="lblScore0"></li>
@@ -117,8 +117,8 @@
             </td>
            
         </tr>
-    </table>     
-    
+    </table>   
+            
     <script src="client_layout.js"></script> 
     <script>
         var gSocket = io();
@@ -134,9 +134,10 @@
             }            
         }
         
-        function start_game()
+        function start_game(btn)
         {
-            gSocket.emit('start game');           
+            gSocket.emit('start game');    
+            document.getElementById(btn.id).disabled = true;           
             //document.getElementById("panelLogin").innerHTML = '<object type="text/html" data="index2.html?name="' + gPlayerName + '></object>';
         }       
         
@@ -154,7 +155,8 @@
             }
             
             // 桌長可以按開始遊戲
-            document.getElementById("btnStart").style.display = "block";
+            if (gPlayerNo == 0)
+                document.getElementById("btnStart").style.display = "inline";
             
             display_playernames(gPlayerNameList);
         });                        
@@ -184,7 +186,7 @@
             if (gTurn == gFirstPlayerNo)
             {
                 gTurn = get_next_first_player();
-                gFirstPlayerNo = gTurn;
+                gFirstPlayerNo = gTurn; 
                 gEat[gTurn]++;
                 add_message(gPlayerNameList[gTurn] + "吃了這墩");                
                 display_eat(gTurn);         

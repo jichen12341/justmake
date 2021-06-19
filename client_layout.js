@@ -6,7 +6,6 @@ var gCardHeight;
 var gCardWidth;
 
 init_layout();
-
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -30,7 +29,7 @@ function init_layout()
     document.getElementById('table1').style.height = Math.floor(gWindowHeight / 6) + "px";
     document.getElementById('table2').style.height = Math.floor(2 * gWindowHeight / 6) + "px";
     document.getElementById('table3').style.height = Math.floor(gWindowHeight / 6) + "px";
-    document.getElementById('table4').style.height = Math.floor(gWindowHeight / 6) + "px";
+    document.getElementById('table4').style.height = Math.floor(2 * gWindowHeight / 6) + "px";
     
     // Adjust Desk card position
     var table = document.getElementById('table2');
@@ -38,28 +37,28 @@ function init_layout()
     var height = table.rows[0].cells[1].offsetHeight;
     
     var x, y;
-    x = width/2;
-    y = height/2;
+    x = width / 2;
+    y = height / 2;
     document.getElementById('deskPanel0').style.transform = "translate(" + x + "px, " + y + "px)";
     
-    x = (width/2 - gCardWidth*2);
-    y = (height/2 - gCardHeight/2);
+    x -= gCardWidth;
+    y -= height / 2;
     document.getElementById('deskPanel1').style.transform = "translate(" + x + "px, " + y + "px)";
     
-    x = (width/2 - gCardWidth*2);
-    y = (height/2 - gCardHeight);
-    document.getElementById('deskPanel2').style.transform = "translate(" + x + "px, " + y + "px)";  
+    x += gCardWidth;
+    y -= height / 2;
+    document.getElementById('deskPanel2').style.transform = "translate(" + x + "px, " + y + "px)";    
     
-    x = (width/2 - gCardWidth*2);
-    y = (height/2 - gCardHeight/2 );
-    document.getElementById('deskPanel3').style.transform = "translate(" + x + "px, " + y + "px)";
+    x += gCardWidth;
+    y += height / 2;
+    document.getElementById('deskPanel3').style.transform = "translate(" + x + "px, " + y + "px)";    
+
     
     for (var i = 0; i < MAX_PLAYERS; i++)
     {
         var deskPanel = document.getElementById('deskPanel' + i);
         deskPanel.style.width = gCardWidth + "px";
-        deskPanel.style.height = gCardHeight + "px";
-        deskPanel.style.border = "1px solid #666";               
+        deskPanel.style.height = gCardHeight + "px";               
     }
     
     // Generate bid buttons
@@ -91,7 +90,7 @@ function display_playernames(playerNames)
             document.getElementById('lblPlayerName' + index).innerHTML = title + playerNames[i];
         }
         else
-            document.getElementById('lblPlayerName' + index).innerHTML = "";
+            document.getElementById('lblPlayerName' + index).innerHTML = "等待其他玩家...";
     }
 }
 
@@ -106,23 +105,22 @@ function display_bid_label(bid)
 }
     
 function display_hand_cards(cards)
-{/*
+{   
     var index = 0;
-    for (var i = 0; i < cards.length; i++)
-    {   
-        if (cards[i] >= 0)
-        {
-            var handCardsPanel = document.getElementById('handCardsPanel' + index);
-            handCardsPanel.innerHTML = "";
-            handCardsPanel.appendChild(gCardImages[cards[i]]);
-            index++;
-        }        
-    }*/
+
+    // Adjust Desk card position
+    var table = document.getElementById('table4');
+    var width = table.rows[0].cells[0].offsetWidth;
+    var height = table.rows[0].cells[0].offsetHeight;
     
-    var index = 0;
+    var deltaX = -(gCardWidth / 3);  // 預設每張牌往左邊內縮1/3
+    var extra = (MAX_HAND_CARDS * gCardWidth - width);  // 總共超出多少px    
+    if (extra > 0)
+        deltaX = -Math.floor(extra / MAX_HAND_CARDS) * 3;  // 重新計算每張牌往左邊內縮量
+    console.log("extra/deltaX= " + extra + " " + deltaX);
     
     for (var i = 0; i < cards.length; i++)
-    {   
+    {           
         if (cards[i] >= 0)
         {                        
             var cHandCardsPanel = document.getElementById('cHandCardsPanel' + index);
@@ -130,8 +128,10 @@ function display_hand_cards(cards)
             cHandCardsPanel.appendChild(gCardImages[cards[i]]);
             
             var handCardsPanel = document.getElementById('handCardsPanel' + index);
-            handCardsPanel.style = "transform: translate(" + (-3 * index) + "em, 0em);"
-            index++;           
+            var offsetX = index * (gCardWidth + deltaX);
+            handCardsPanel.style = "transform: translate(" + offsetX + "px, 0px)";     
+            
+            index++;             
         }        
     }
 }
@@ -174,14 +174,14 @@ async function display_eat(playerNo)
         var deskPanel = document.getElementById("deskPanel" + i);
         if (i == playerNo) continue;
         deskPanel.innerHTML = "";
-        await sleep(1000);
+        //await sleep(1000);
     }
     
     var deskPanel = document.getElementById("deskPanel" + playerNo);
     deskPanel.innerHTML = "";
     
     display_eat_label();   
-   
+    display_first_player_desk_card();
     
     if (gHandCardLeft == 0)
     {
@@ -209,11 +209,11 @@ function display_message(msg)
 
 function display_your_turn(enable)
 {    
-    /*var playerPanel = document.getElementById("playerPanel0");
+    /*var deskPanel = document.getElementById("deskPanel0");
     if (enable)
-        playerPanel.classList.add("yourturn");
+        deskPanel.innerHTML = "換你了";
     else
-        playerPanel.classList.remove("yourturn");*/
+        deskPanel.innerHTML = "";*/
 }
 
 function display_score(score)
@@ -231,4 +231,18 @@ function display_trump()
 {
     var lblTrump = document.getElementById("lblTrump");
     lblTrump.innerHTML = "王牌: " + gCardSuit[gTrump];
+}
+
+function display_first_player_desk_card()
+{
+    for (var i = 0; i < MAX_PLAYERS; i++)
+    {
+        var index = (i + MAX_PLAYERS - gPlayerNo) % MAX_PLAYERS;
+        var deskPanel = document.getElementById("deskPanel" + index);
+        if (i == gFirstPlayerNo)
+            deskPanel.style.border = "10px solid #666";
+        else
+            deskPanel.style.border = "";
+        console.log(gFirstPlayerNo);
+    }
 }

@@ -2,6 +2,7 @@
 const MAX_PLAYERS = 4;
 const MAX_CARDS = 52;
 const MAX_CARD_SUIT = 5;
+const MAX_HAND_CARDS = MAX_CARDS / MAX_PLAYERS;
 
 const STATE_IDLE = 0;
 const STATE_BID = 1;
@@ -9,7 +10,7 @@ const STATE_PLAY = 2;
 const STATE_ANIME_EAT = 3;
 
 var gState = STATE_IDLE;
-var gCardSuit = ['S', 'H', 'D', 'C', 'N'];
+var gCardSuit = ['&spades;', '&hearts;', '&diams;', '&clubs;', '&empty;'];
 var gCards = [];
 var gPlayerName;
 var gPlayerNameList = ["", "", "", ""];
@@ -73,6 +74,7 @@ function deal_cards(cards)
     display_hand_cards(gCards);
     display_bid_panel();   
     display_trump();
+    display_first_player_desk_card();
 }
 
 // 玩家叫牌
