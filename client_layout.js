@@ -81,6 +81,9 @@ function init_layout()
         btn.onclick = bid;
         bidPanel.appendChild(btn);
     }
+    var lbl = document.createElement('label');
+    lbl.textContent = "請叫牌";
+    bidPanel.appendChild(lbl);    
 }
 
 function display_playernames(playerNames)
