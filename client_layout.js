@@ -276,7 +276,9 @@ function display_score(score)
 function display_trump()
 {
     var lblTrump = document.getElementById("lblTrump");
-    lblTrump.innerHTML = "王牌: " + gCardSuit[gTrump];
+    if (gTrump == 1 || gTrump == 2)
+        lblTrump.style.color = "red";
+    lblTrump.innerHTML = "王牌: " + gCardSuit[gTrump];    
 }
 
 function display_first_player_desk_card()
