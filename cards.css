@@ -50,7 +50,7 @@ table, th, td {
 }
 
 .playingCards .card {
-    position: relative;
+    position: relative;  
 }
 
 .playingCards a.card {

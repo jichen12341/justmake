@@ -41,7 +41,7 @@
                     <li id="lblScore2"></li>
                 </ul>
             </td>
-            <td align="right">v0.4</td>
+            <td align="right">v0.5</td>
         </tr>
     </table>   
         
@@ -125,6 +125,10 @@
         
         function join_game(btn)
         {           
+            //var playerPanel = document.getElementById('playerPanel2');
+            //playerPanel.classList.add('horizTranslate');
+            
+        
             var name = document.getElementById('name').value;
             if (name)
             {
@@ -137,7 +141,7 @@
         function start_game(btn)
         {
             gSocket.emit('start game');    
-            document.getElementById(btn.id).disabled = true;           
+            //document.getElementById(btn.id).disabled = true;           
             //document.getElementById("panelLogin").innerHTML = '<object type="text/html" data="index2.html?name="' + gPlayerName + '></object>';
         }       
         

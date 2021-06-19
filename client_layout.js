@@ -40,19 +40,26 @@ function init_layout()
     x = width / 2;
     y = height / 2;
     document.getElementById('deskPanel0').style.transform = "translate(" + x + "px, " + y + "px)";
+    document.getElementById('deskPanel0').myOffsetLeft = x;
+    document.getElementById('deskPanel0').myOffsetTop = y;
     
     x -= gCardWidth;
     y -= height / 2;
     document.getElementById('deskPanel1').style.transform = "translate(" + x + "px, " + y + "px)";
+    document.getElementById('deskPanel1').myOffsetLeft = x;
+    document.getElementById('deskPanel1').myOffsetTop = y;
     
     x += gCardWidth;
     y -= height / 2;
     document.getElementById('deskPanel2').style.transform = "translate(" + x + "px, " + y + "px)";    
+    document.getElementById('deskPanel2').myOffsetLeft = x;
+    document.getElementById('deskPanel2').myOffsetTop = y;
     
     x += gCardWidth;
     y += height / 2;
     document.getElementById('deskPanel3').style.transform = "translate(" + x + "px, " + y + "px)";    
-
+    document.getElementById('deskPanel3').myOffsetLeft = x;
+    document.getElementById('deskPanel3').myOffsetTop = y;
     
     for (var i = 0; i < MAX_PLAYERS; i++)
     {
@@ -126,11 +133,11 @@ function display_hand_cards(cards)
             var cHandCardsPanel = document.getElementById('cHandCardsPanel' + index);
             cHandCardsPanel.innerHTML = "";
             cHandCardsPanel.appendChild(gCardImages[cards[i]]);
-            
+                        
             var handCardsPanel = document.getElementById('handCardsPanel' + index);
             var offsetX = index * (gCardWidth + deltaX);
             handCardsPanel.style = "transform: translate(" + offsetX + "px, 0px)";     
-            
+
             index++;             
         }        
     }
@@ -162,23 +169,52 @@ function display_desk_card(playerNo, card)
     deskPanel.appendChild(gCardImages[card]);
 }
 
-// 顯示該玩家吃到這墩
+function display_transform_deck_card(card, from, to)
+{   
+    var deskfromPanel = document.getElementById("deskPanel" + from);
+    var deskToPanel = document.getElementById("deskPanel" + to);
+    deltaX = deskToPanel.myOffsetLeft - deskfromPanel.myOffsetLeft;
+    deltaY = deskToPanel.myOffsetTop - deskfromPanel.myOffsetTop;
+    card.style.transition = "1s";
+    card.style.transform = "translate(" + deltaX + "px, " + deltaY + "px)";
+}
+
+// 顯示該玩家吃到這墩 (動畫)
 async function display_eat(playerNo)
 {
     gState = STATE_ANIME_EAT;    
     playerNo = (playerNo + MAX_PLAYERS - gPlayerNo) % MAX_PLAYERS; 
     
+    // 將該玩家的牌至頂
+    for (var i = 0; i < MAX_PLAYERS; i++)
+    {
+        if (i == playerNo)
+            document.getElementById("deskPanel" + i).style.zIndex = "2";
+        else
+            document.getElementById("deskPanel" + i).style.zIndex = "1";
+    }
+    
+    // 該玩家收所有牌
     await sleep(2000);
     for (var i = 0; i < MAX_PLAYERS; i++)
     {
-        var deskPanel = document.getElementById("deskPanel" + i);
         if (i == playerNo) continue;
-        deskPanel.innerHTML = "";        
+        
+        var deskPanel = document.getElementById("deskPanel" + i);
+        var card = deskPanel.firstChild;        
+        display_transform_deck_card(card, i, playerNo);              
     }
-    await sleep(1000);
+    await sleep(1000);    
     
-    var deskPanel = document.getElementById("deskPanel" + playerNo);
-    deskPanel.innerHTML = "";
+    // 移除桌上牌, 移除動畫
+    for (var i = 0; i < MAX_PLAYERS; i++)
+    {
+        var deskPanel = document.getElementById("deskPanel" + i);
+        card = deskPanel.firstChild;
+        card.style.transition = "0";
+        card.style.transform = "";
+        deskPanel.innerHTML = "";
+    }
     
     display_eat_label();   
     display_first_player_desk_card();
