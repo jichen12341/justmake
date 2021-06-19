@@ -191,7 +191,13 @@ function start_next_game()
     {        
         gGuessHands[i] = -1;
         gDeskCards[i] = -1;
-    }
+    }    
+    
+    for (var i = 0; i < MAX_CARDS; i++)
+        gCards[i] = i;    
+    shuffle_cards();
+    gHandCardLeft = MAX_CARDS / MAX_PLAYERS;
+    console.log(gCards.toString());    
     
     for (var i = 0; i < MAX_PLAYERS; i++)
     {        
@@ -199,13 +205,7 @@ function start_next_game()
         {
             gGuessHands[i] = ai_guess_hands(i);
         }
-    }
-    
-    for (var i = 0; i < MAX_CARDS; i++)
-        gCards[i] = i;    
-    shuffle_cards();
-    gHandCardLeft = MAX_CARDS / MAX_PLAYERS;
-    console.log(gCards.toString());    
+    }    
 }
 
 function get_random(x){
@@ -227,7 +227,16 @@ function shuffle_cards()
 ////////////////////////////////////////////////////////
 function ai_guess_hands(playerNo)
 {
-    return get_random(13);
+    if (gTrump == '4')
+        return 3;
+    
+    var count = 0;
+    for (var i = playerNo * 13; i < playerNo * 13 + 13; i++)
+    {
+        if (get_card_suit(gCards[i]) == gTrump)
+            count++;        
+    }    
+    return ((count == 0) ? 1 : count);
 }
 
 function ai_play_card(playerNo)
