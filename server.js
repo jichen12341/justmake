@@ -236,7 +236,7 @@ function shuffle_cards()
    for (var i = 0; i < MAX_CARDS; i++)
    {
        var a = get_random(MAX_CARDS);
-       var b = get_random(MAX_CARDS);
+       var b = i;//get_random(MAX_CARDS);
        var tmp = gCards[a];
        gCards[a] = gCards[b];
        gCards[b] = tmp;       

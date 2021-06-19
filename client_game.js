@@ -121,7 +121,7 @@ function play_card()
     console.log(gState + " " + this.tag);
     if (gState == STATE_PLAY)
     {
-        gHandCardLeft--;
+        //gHandCardLeft--;
         display_your_turn(false);
         
         var card = parseInt(this.tag);

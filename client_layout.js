@@ -112,6 +112,12 @@ function display_bid_label(bid)
         var index = (i + MAX_PLAYERS - gPlayerNo) % MAX_PLAYERS;        
         document.getElementById('lblBid' + index).innerHTML = "叫 " + bid[i] + " 墩";
     }
+    
+    /*var lblBid = document.getElementById('lblBid0');
+    var item = document.createElement('li');
+    item.classList.add('scoreTipText');
+    item.textContent = "asdasdf";
+    lblBid.appendChild(item);    */
 }
     
 function display_hand_cards(cards)
@@ -222,6 +228,7 @@ async function display_eat(playerNo)
     display_eat_label();   
     display_first_player_desk_card();
     
+    gHandCardLeft--;
     if (gHandCardLeft == 0)
     {
         calculate_score();
