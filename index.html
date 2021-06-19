@@ -22,10 +22,10 @@
 </head>
 <!--<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">-->
 <link rel="stylesheet" href="cards.css">
-<body>      
+<body onload="init()">      
     <ul id="panelLogin">
         <input type="text" id="name" value="ttt" placeholder="暱稱" /> 
-        <button id="btnJoin" onclick="join_game(this)" />加入遊戲</button>
+        <button id="btnJoin" onclick="join_game(this)" disabled />加入遊戲</button>
         <button id="btnStart" onclick="start_game(this)" hidden />開始遊戲</button>     
     </ul>   
     

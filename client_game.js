@@ -29,6 +29,18 @@ var gHandCardLeft;
 for (var i = 0; i < MAX_CARDS / MAX_PLAYERS; i++)
     gCards.push(0);
 
+function init()
+{
+    btnJoin = document.getElementById("btnJoin");
+    btnJoin.disabled = false;
+}
+
+/*while !(document.readyState === 'complete') 
+{
+  // The page is fully loaded
+  console.log("asdfasdf");
+}*/
+
 // 發牌
 function deal_cards(cards)
 {   
@@ -94,7 +106,11 @@ function start_a_new_turn()
     {
         gState = STATE_PLAY;
         display_your_turn(true);
-        console.log("換你了");   
+        console.log("換你了");
+        
+        var deskPanel = document.getElementById("deskPanel0");
+        deskPanel.innerHTML = "請出牌";
+        
         return;
     }      
 }
