@@ -173,9 +173,9 @@ async function display_eat(playerNo)
     {
         var deskPanel = document.getElementById("deskPanel" + i);
         if (i == playerNo) continue;
-        deskPanel.innerHTML = "";
-        //await sleep(1000);
+        deskPanel.innerHTML = "";        
     }
+    await sleep(1000);
     
     var deskPanel = document.getElementById("deskPanel" + playerNo);
     deskPanel.innerHTML = "";
