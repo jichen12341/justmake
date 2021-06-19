@@ -18,6 +18,9 @@ app.get('/*.*', (req, res) => {
 
 io.on('connection', (socket) => {
     socket.on('join game', name => {
+        if (gGameStarted)
+            return;
+        
         console.log(name + ' joined');
         
         socket.nickname = name;
@@ -130,6 +133,12 @@ io.on('connection', (socket) => {
     });
     
     socket.on('disconnect', () => {   
+        if (gGameStarted)
+        {
+            stop_game();            
+            return;
+        }
+        
         console.log(socket.nickname + ' disconnected');
         var name = socket.nickname;
         for (var i = 0; i < gPlayerNameList.length; i++)
@@ -162,6 +171,19 @@ var gCardSuit = ['S', 'H', 'D', 'C', 'N'];
 var gTrump = 0;
 var gHandCardLeft;
     
+for (var i = 0; i < MAX_CARDS; i++)
+    gCards.push(i);
+    
+function stop_game()
+{
+    gGameStarted = false;
+    for (var i = 0; i < MAX_PLAYERS; i++)
+    {
+        gPlayerNameList[i] = "";
+        gReady[i] = 1;
+    }
+}
+    
 // 遊戲開始時執行一次
 function start_game()
 {
@@ -169,10 +191,7 @@ function start_game()
     gTurn = 0;
     gFirstPlayerNo = 0;
     gNextFirstPlayerNo = MAX_PLAYERS - 1;
-    gTrump = MAX_CARD_SUITE - 1;
-
-    for (var i = 0; i < MAX_CARDS; i++)
-        gCards.push(i); 
+    gTrump = MAX_CARD_SUITE - 1; 
     
     start_next_game();
 }
