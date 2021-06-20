@@ -47,7 +47,7 @@ function init()
 
 function abort_game(playerNo)
 {
-    console.log('abort_game', gPlayerNameList[playerNo]);
+    console.log('abort_game', playerNo, gPlayerNameList[playerNo]);
     gPlayerNameList[playerNo] = "<font color='red'>此人離線</font>";
     display_playernames(gPlayerNameList);
     

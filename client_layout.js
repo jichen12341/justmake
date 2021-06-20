@@ -26,7 +26,6 @@ function init_layout()
     }
     gCardHeight = 150;//gCardImages[0].height;
     gCardWidth = 105;//gCardImages[0].width;
-    console.log("gcard", 150, gCardHeight);
 
     // Adjust size of each table
     document.getElementById('table1').style.height = Math.floor(gWindowHeight / 6) + "px";
@@ -81,6 +80,7 @@ function init_layout()
         btn.innerHTML = i;
         btn.style.width = '50px';
         btn.style.height = '50px';
+        btn.style.fontSize = "x-large";
         btn.onclick = bid;
         bidPanel.appendChild(btn);
     }
