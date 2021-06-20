@@ -7,6 +7,14 @@ table, th, td {
 }
 /*table.fixed td { overflow: hidden; }*/
 
+.cardImage {
+    height: 150px;
+    width: 105px;
+    //border: 0.5px solid #888;
+    //border-radius: 10px;
+    background-color: #888;
+}
+
 .player {
     width: 150px;
     height: 100px;
@@ -14,10 +22,6 @@ table, th, td {
     list-style-type: none;
     margin: 0; 
     padding: 0;
-}
-
-.yourturn{
-    animation:blinkingText 1.2s infinite;
 }
 
 .playingCards {

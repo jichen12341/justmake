@@ -15,14 +15,18 @@ function init_layout()
     for (var i = 0; i < MAX_CARDS; i++)
     {
         var img = new Image();
-        img.src = "images/" + i + ".jpg";
+        img.src = "images/" + i + ".png";
         img.tag = i;
+        //img.style.width = '105px';
+        //img.style.height  = '150px';
         img.onclick = play_card;
+        img.classList.add('cardImage');
         //img.style = 'height: 100%; width: 100%;';// object-fit: contain';
         gCardImages.push(img);
     }
-    gCardHeight = gCardImages[0].height;
-    gCardWidth = gCardImages[0].width;
+    gCardHeight = 150;//gCardImages[0].height;
+    gCardWidth = 105;//gCardImages[0].width;
+    console.log("gcard", 150, gCardHeight);
 
     // Adjust size of each table
     document.getElementById('table1').style.height = Math.floor(gWindowHeight / 6) + "px";
