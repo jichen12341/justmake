@@ -12,7 +12,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/*.*', (req, res) => {
-    console.log(req.url);
+    //console.log(req.url);
     res.sendFile(__dirname + req.url);
 });  
 
@@ -30,6 +30,7 @@ io.on('connection', (socket) => {
             if (gPlayerNameList[i] == "")
             {
                 gPlayerNameList[i] = name;
+                socket.playerNo = i;
                 break;
             }
         }        
@@ -76,7 +77,7 @@ io.on('connection', (socket) => {
         {
             if (gReady[i] == 0)
                 return;
-        }
+        }        
         
         gHandCardLeft--;
         if (gHandCardLeft == 0)
@@ -86,8 +87,7 @@ io.on('connection', (socket) => {
             start_next_game();
             io.emit('deal cards', gCards);
             return;
-        }
-        //io.emit('next turn');
+        }        
         
         // 看看是否換電腦出牌
         while (true)
@@ -100,7 +100,11 @@ io.on('connection', (socket) => {
             io.emit('play a card', gTurn, card);  
 
             gTurn = (gTurn + 1) % MAX_PLAYERS;
-        }        
+        } 
+
+        // 通知玩家進行下一個turn
+        console.log('next turn ready');
+        io.emit('next turn ready');
     });
     
     // 玩家出了一張牌
@@ -134,13 +138,14 @@ io.on('connection', (socket) => {
     });
     
     socket.on('disconnect', () => {   
+        console.log(socket.nickname + ' disconnected');
         if (gGameStarted)
         {
-            stop_game();            
+            abort_game();  
+            io.emit('abort game', socket.playerNo, socket.nickname);    
             return;
         }
-        
-        console.log(socket.nickname + ' disconnected');
+                
         var name = socket.nickname;
         for (var i = 0; i < gPlayerNameList.length; i++)
         {
@@ -175,8 +180,9 @@ var gHandCardLeft;
 for (var i = 0; i < MAX_CARDS; i++)
     gCards.push(i);
     
-function stop_game()
+function abort_game()
 {
+    console.log('abort_game');
     gGameStarted = false;
     for (var i = 0; i < MAX_PLAYERS; i++)
     {

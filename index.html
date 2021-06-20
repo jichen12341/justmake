@@ -41,7 +41,7 @@
                     <li id="lblScore2"></li>
                 </ul>
             </td>
-            <td align="right">v1.0</td>
+            <td align="right">v1.1</td>
         </tr>
     </table>   
         
@@ -126,29 +126,33 @@
         function join_game(btn)
         {           
             //var playerPanel = document.getElementById('playerPanel2');
-            //playerPanel.classList.add('horizTranslate');
-            
-        
+            //playerPanel.classList.add('horizTranslate');                    
             var name = document.getElementById('name').value;
             if (name)
             {
+                gState = STATE_CONNECTED;
                 document.getElementById(btn.id).disabled = true;
                 gPlayerName = name;
+                console.log('emit join game');
                 gSocket.emit('join game', name);                               
             }            
         }
         
         function start_game(btn)
         {
-            gSocket.emit('start game');    
-            document.getElementById(btn.id).disabled = true;           
+            //display_score(gScore);
+            document.getElementById(btn.id).disabled = true;
+            console.log('emit join game');
+            gSocket.emit('start game');                           
             //document.getElementById("panelLogin").innerHTML = '<object type="text/html" data="index2.html?name="' + gPlayerName + '></object>';
         }       
         
         /////////////////////////////////////////////////////////////////////////////////
         
-        // 獲得玩家名字
-        gSocket.on('get player names', function(playerNames) {        
+        // 有人登入，獲得玩家名字
+        gSocket.on('get player names', function(playerNames) {
+            if (gState == STATE_UNUSED) return;
+            
             gPlayerNameList = playerNames;
             
             // find player's position
@@ -163,15 +167,22 @@
                 document.getElementById("btnStart").style.display = "inline";
             
             display_playernames(gPlayerNameList);
-        });                        
+        });      
+
+        // 有人離線，中斷遊戲
+        gSocket.on('abort game', function(playerNo, playerName) {
+            abort_game(playerNo);
+        });
         
         // 可以發牌了
-        gSocket.on('deal cards', function(cards) {        
+        gSocket.on('deal cards', function(cards) {
+            if (gState == STATE_UNUSED) return;        
             deal_cards(cards);
         });  
 
         // 所有人都叫牌了，進入出牌階段
-        gSocket.on('get bid', function(bid) {        
+        gSocket.on('get bid', function(bid) { 
+            if (gState == STATE_UNUSED) return; 
             gBid = bid;
             display_bid_label(gBid);
             display_eat_label();
@@ -180,7 +191,8 @@
         });
         
         // 有人出了一張牌
-        gSocket.on('play a card', function(playerNo, card) {   
+        gSocket.on('play a card', function(playerNo, card) {  
+            if (gState == STATE_UNUSED) return; 
             card = parseInt(card);
             display_desk_card(playerNo, card);
             add_message(gPlayerNameList[playerNo] + " 出了 " + card);
@@ -194,16 +206,22 @@
                 gFirstPlayerNo = gTurn; 
                 gEat[gTurn]++;
                 add_message(gPlayerNameList[gTurn] + "吃了這墩");                
-                display_eat(gTurn);         
+                display_eat(gTurn);                     
             }   
             else if (gTurn == gPlayerNo)
             {
-                gState = STATE_PLAY;
+                gState = STATE_MY_TURN;
                 display_your_turn(true);
                 console.log("換你了");
             }              
         });        
 
+        // 可以進行下一個turn        
+        gSocket.on('next turn ready', function() { 
+            if (gState == STATE_UNUSED) return; 
+            start_a_new_turn();            
+        });
+        
         function add_message(msg)
         {
             var messages = document.getElementById('msgDesk3');

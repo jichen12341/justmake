@@ -93,3 +93,40 @@ table, th, td {
 .scoreTip:hover .scoreTipText {
   visibility: visible;
 }
+
+.bidTip {
+    font-size: 150%;
+    color: black;
+    font-weight: bold;
+    padding: 25px;
+}
+
+.vertical-center {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+}
+
+.yourTurnTip {
+    font-size: 150%;
+    color: black;
+    font-weight: bold;
+    padding: 5px;
+
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);  
+}
+
+.scoreColorChange {
+    animation-name: example;
+    animation-duration: 4s;    
+}
+@keyframes example {
+    from {background-color: pink;}
+    to {background-color: green;}
+}

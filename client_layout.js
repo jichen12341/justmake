@@ -5,7 +5,6 @@ var gWindowWidth = window.innerWidth;
 var gCardHeight;
 var gCardWidth;
 
-init_layout();
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -83,6 +82,7 @@ function init_layout()
     }
     var lbl = document.createElement('label');
     lbl.textContent = "請叫牌";
+    lbl.classList.add('bidTip');
     bidPanel.appendChild(lbl);    
 }
 
@@ -180,6 +180,8 @@ function display_desk_card(playerNo, card)
 
 function display_transform_deck_card(card, from, to)
 {   
+    if (card == null) return;
+    
     var deskfromPanel = document.getElementById("deskPanel" + from);
     var deskToPanel = document.getElementById("deskPanel" + to);
     deltaX = deskToPanel.myOffsetLeft - deskfromPanel.myOffsetLeft;
@@ -228,7 +230,14 @@ async function display_eat(playerNo)
     display_eat_label();   
     display_first_player_desk_card();
     
+    // 手上牌都出完了，結算成績
     gHandCardLeft--;
+    if (gHandCardLeft == 0)
+    {
+        calculate_score();
+        display_score(gScore);
+    }    
+    /*gHandCardLeft--;
     if (gHandCardLeft == 0)
     {
         calculate_score();
@@ -237,13 +246,13 @@ async function display_eat(playerNo)
     }
     else if (gTurn == gPlayerNo)
     {
-        gState = STATE_PLAY;
+        gState = STATE_MY_TURN;
         display_your_turn(true);
         console.log("換你了");
-    } 
+    } */
     
     // 告知伺服器已完成一墩
-    console.log("finish turn");
+    console.log("emit finish turn");    
     gSocket.emit('finish turn', gPlayerNo);         
 }
 
@@ -255,22 +264,42 @@ function display_message(msg)
 
 function display_your_turn(enable)
 {    
-    /*var deskPanel = document.getElementById("deskPanel0");
+    var deskPanel = document.getElementById("deskPanel0");
     if (enable)
-        deskPanel.innerHTML = "換你了";
+    {
+        var lbl = document.createElement('label');
+        lbl.textContent = "換你了";
+        lbl.classList.add('yourTurnTip');
+        deskPanel.appendChild(lbl);         
+        //deskPanel.innerHTML = "換你了";
+        //deskPanel.classList.add('deskPanelTip');
+    }
     else
-        deskPanel.innerHTML = "";*/
+        deskPanel.innerHTML = "";
 }
 
 function display_score(score)
-{
-    for (var i = 0; i < MAX_PLAYERS; i++)
+{    
+    /*for (var i = 0; i < MAX_PLAYERS; i++)
     {
         var index = (i + MAX_PLAYERS - gPlayerNo) % MAX_PLAYERS;
         
         var lblScore = document.getElementById("lblScore" + index);
         lblScore.innerHTML = "總分: " + gScoreOld[i] + " --> " + gScore[i];
-    }
+        lblScore.classList.add('scoreColorChange');
+    } */
+
+    for (var i = 0; i < MAX_PLAYERS; i++)
+    {
+        var index = (i + MAX_PLAYERS - gPlayerNo) % MAX_PLAYERS;
+        var lblScore = document.getElementById("lblScore" + index);
+        lblScore.innerHTML = "";
+        
+        var item = document.createElement('div');
+        item.textContent = "總分: " + gScoreOld[i] + " --> " + gScore[i];
+        item.classList.add('scoreColorChange');
+        lblScore.appendChild(item);        
+    }           
 }
 
 function display_trump()

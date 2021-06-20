@@ -4,12 +4,14 @@ const MAX_CARDS = 52;
 const MAX_CARD_SUIT = 5;
 const MAX_HAND_CARDS = MAX_CARDS / MAX_PLAYERS;
 
-const STATE_IDLE = 0;
-const STATE_BID = 1;
-const STATE_PLAY = 2;
-const STATE_ANIME_EAT = 3;
+const STATE_UNUSED = 0;
+const STATE_CONNECTED = 1;
+const STATE_BID = 2;
+const STATE_MY_TURN = 3
+const STATE_ANIME_EAT = 4;
+const STATE_OTHER_TURN = 5;
 
-var gState = STATE_IDLE;
+var gState = STATE_UNUSED;
 var gCardSuit = ['&spades;', '&hearts;', '&diams;', '&clubs;', '&empty;'];
 var gCards = [];
 var gPlayerName;
@@ -33,6 +35,8 @@ function init()
 {
     btnJoin = document.getElementById("btnJoin");
     btnJoin.disabled = false;
+    
+    init_layout();    
 }
 
 /*while !(document.readyState === 'complete') 
@@ -40,6 +44,16 @@ function init()
   // The page is fully loaded
   console.log("asdfasdf");
 }*/
+
+function abort_game(playerNo)
+{
+    console.log('abort_game', gPlayerNameList[playerNo]);
+    gPlayerNameList[playerNo] = "<font color='red'>此人離線</font>";
+    display_playernames(gPlayerNameList);
+    
+    var table = document.getElementById("table4");
+    table.style.display = 'none';
+}
 
 // 發牌
 function deal_cards(cards)
@@ -82,6 +96,8 @@ function deal_cards(cards)
         return suitA - suitB;
     });    
     
+    gState = STATE_BID;
+    
     add_message(gCards);   // debug
     display_hand_cards(gCards);
     display_bid_panel();   
@@ -91,7 +107,7 @@ function deal_cards(cards)
 
 // 玩家叫牌
 function bid()
-{       
+{           
     var bidPanel = document.getElementById("bidPanel");
     bidPanel.style.display = 'none';
     console.log(this.innerHTML);
@@ -100,17 +116,36 @@ function bid()
     for (var i = 0; i < MAX_PLAYERS; i++)
         gBid[i] = "等待其他人叫牌";
     gBid[gPlayerNo] = bid;
-    display_bid_label(gBid);
+    display_bid_label(gBid);        
     
-    gSocket.emit('bid', gPlayerNo, bid);    
-    gState = STATE_IDLE;
+    console.log('emit bid');
+    gSocket.emit('bid', gPlayerNo, bid);        
 }
 
+// 可以進行下一個turn
 function start_a_new_turn()
-{
+{    
+    console.log('start_a_new_turn', gHandCardLeft, gTurn, gPlayerNo);
     if (gTurn == gPlayerNo)
+    {               
+        /*gHandCardLeft--;
+        if (gHandCardLeft == 0)
+        {
+            calculate_score();
+            display_score(gScore);
+            gState = STATE_BID;
+        }
+        else*/
+        {
+            gState = STATE_MY_TURN;
+            display_your_turn(true);
+            console.log("換你了");           
+        }
+    }         
+        
+    /*if (gTurn == gPlayerNo)
     {
-        gState = STATE_PLAY;
+        gState = STATE_MY_TURN;
         display_your_turn(true);
         console.log("換你了");
         
@@ -118,29 +153,30 @@ function start_a_new_turn()
         deskPanel.innerHTML = "請出牌";
         
         return;
-    }      
+    } */     
 }
 
 // 玩家出一張牌
 function play_card()
 {
     console.log(gState + " " + this.tag);
-    if (gState == STATE_PLAY)
+    if (gState == STATE_MY_TURN)
     {
-        //gHandCardLeft--;
         display_your_turn(false);
         
         var card = parseInt(this.tag);
         if (validate_card(card) == true)
         {
-            gState = STATE_IDLE;
+            gState = STATE_OTHER_TURN;
+            
             
             var index = gCards.indexOf(card);
             gCards[index] = -1;
             display_hand_cards(gCards);
             //document.getElementById('msgDesk').innerHTML = gCards;
             
-            gSocket.emit('play a card', gPlayerNo, card);
+            console.log('emit play a card');
+            gSocket.emit('play a card', gPlayerNo, card);            
         }
         else
             display_message("不可出此牌 " + card);               
