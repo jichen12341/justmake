@@ -1,6 +1,7 @@
 const app = require('express')();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
+const fsLibrary = require('fs');
 const port = process.env.PORT || 3000;
 
 var gPlayerNameList = ["", "", "", ""];
@@ -17,7 +18,7 @@ app.get('/*.*', (req, res) => {
 });  
 
 io.on('connection', (socket) => {
-    socket.on('join game', name => {
+    socket.on('join game', name => {        
         console.log(name, "join game", gGameStarted, gPlayerNameList);
         if (gGameStarted)
             return;
@@ -45,6 +46,7 @@ io.on('connection', (socket) => {
     
     socket.on('bid', (playerNo, hands) => {        
         gGuessHands[playerNo] = hands;
+        write_to_file(socket.nickname + ' ' + playerNo + ': bid ' + hands + " " + gGuessHands);
         console.log(socket.nickname + ' ' + playerNo + ': bid ' + hands + " " + gGuessHands);
         
         for (var i = 0; i < MAX_PLAYERS; i++)
@@ -71,6 +73,7 @@ io.on('connection', (socket) => {
        
     // 已完成一墩
     socket.on('finish turn', (playerNo) => {
+        write_to_file("finish turn playerNo/gHandCardLeft=" + playerNo + " " + gHandCardLeft);
         console.log("finish turn playerNo/gHandCardLeft=" + playerNo + " " + gHandCardLeft);
         gReady[playerNo] = 1;
         for (var i = 0; i < MAX_PLAYERS; i++)       
@@ -83,6 +86,7 @@ io.on('connection', (socket) => {
         if (gHandCardLeft == 0)
         {
             // 已完成一局
+            write_to_file("finish a game");
             console.log("finish a game");
             start_next_game();
             io.emit('deal cards', gCards);
@@ -103,12 +107,14 @@ io.on('connection', (socket) => {
         } 
 
         // 通知玩家進行下一個turn
+        write_to_file("next turn ready");
         console.log('next turn ready');
         io.emit('next turn ready');
     });
     
     // 玩家出了一張牌
     socket.on('play a card', (playerNo, card) => {
+        write_to_file(socket.nickname + ' ' + playerNo + ': play a card ' + card);
         console.log(socket.nickname + ' ' + playerNo + ': play a card ' + card);
         gDeskCards[playerNo] = card;
         io.emit('play a card', playerNo, card);   
@@ -118,6 +124,7 @@ io.on('connection', (socket) => {
         while (true)
         {
             gTurn = (gTurn + 1) % MAX_PLAYERS;
+            write_to_file("play a card: gTurn/gFirstPlayerNo= " + gTurn + " " + gFirstPlayerNo);
             console.log("play a card: gTurn/gFirstPlayerNo= " + gTurn + " " + gFirstPlayerNo);
             
             // 四個人都出牌了，看誰吃這墩
@@ -139,6 +146,7 @@ io.on('connection', (socket) => {
     
     socket.on('disconnect', () => {   
         console.log(socket.nickname + ' disconnected');
+        write_to_file(socket.nickname + ' disconnected');
         if (gGameStarted)
         {
             abort_game();  
@@ -166,6 +174,7 @@ http.listen(port, () => {
 const MAX_CARDS = 52;
 const MAX_PLAYERS = 4;
 const MAX_CARD_SUITE = 5;
+const LOG_FILE = "server_log.txt";
 
 var gCards = [];
 var gTurn = 0;
@@ -182,6 +191,7 @@ for (var i = 0; i < MAX_CARDS; i++)
     
 function abort_game()
 {
+    write_to_file('abort_game');
     console.log('abort_game');
     gGameStarted = false;
     for (var i = 0; i < MAX_PLAYERS; i++)
@@ -200,12 +210,15 @@ function start_game()
     gNextFirstPlayerNo = MAX_PLAYERS - 1;
     gTrump = MAX_CARD_SUITE - 1; 
     
-    start_next_game();
+    fsLibrary.unlinkSync(LOG_FILE);
+    
+    start_next_game();    
 }
 
 // 每一回合執行一次
 function start_next_game()
 {  
+    write_to_file("start_next_game");
     console.log("start_next_game");
     
     gNextFirstPlayerNo = (gNextFirstPlayerNo + 1) % MAX_PLAYERS;    
@@ -223,6 +236,7 @@ function start_next_game()
         gCards[i] = i;    
     shuffle_cards();
     gHandCardLeft = MAX_CARDS / MAX_PLAYERS;
+    write_to_file(gCards.toString());
     console.log(gCards.toString());    
     
     for (var i = 0; i < MAX_PLAYERS; i++)
@@ -248,6 +262,14 @@ function shuffle_cards()
        gCards[a] = gCards[b];
        gCards[b] = tmp;       
    }
+}
+
+function write_to_file(txt)
+{
+    fsLibrary.appendFile(LOG_FILE, txt + "\n\r", (error) => {      
+        // In case of a error throw err exception.
+        if (error) throw err;
+    })
 }
 
 ////////////////////////////////////////////////////////
