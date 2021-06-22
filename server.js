@@ -185,6 +185,8 @@ var gDeskCards = [-1, -1, -1, -1];
 var gCardSuit = ['S', 'H', 'D', 'C', 'N'];
 var gTrump = 0;
 var gHandCardLeft;
+
+write_to_file('server started');
     
 for (var i = 0; i < MAX_CARDS; i++)
     gCards.push(i);
